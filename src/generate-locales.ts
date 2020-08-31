@@ -33,6 +33,6 @@ export const generateLocales = async (params: GenerateLocalesParams) => {
 
   console.log("Generating i18n files...");
   await remove(join(".", tempDir));
-  await execa(`git clone --depth 1 ${params.gitRepo} ${tempDir}`);
+  await execa("git", ["clone", "--depth", "1", params.gitRepo, tempDir]);
   await copy(join(".", tempDir, "locales"), join(".", "locales"));
 };

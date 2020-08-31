@@ -1,0 +1,29 @@
+{
+  "name": "sapper-i18n-sync",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnandChowdhary/sapper-i18n-sync.git"
+  },
+  "keywords": [
+    "sapper",
+    "i18n",
+    "svelte",
+    "typescript"
+  ],
+  "author": "Anand Chowdhary <mail@anandchowdhary.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AnandChowdhary/sapper-i18n-sync/issues"
+  },
+  "homepage": "https://github.com/AnandChowdhary/sapper-i18n-sync#readme"
+}

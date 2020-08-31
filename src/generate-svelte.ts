@@ -29,19 +29,20 @@ let languages: string[] = [];
  * Generate the language file for Svelte usage
  * Reads the `locales` directory and generates a list of languages in data/generated
  */
-export const generateLanguageFile = async () => {
+export const generateLanguageFile = async (languages: string[]) => {
   const translations: any = {};
   const languageObject: { [index: string]: string } = {};
-  languages.forEach((language) => {
+  for await (const language of languages) {
     translations[language] = {};
     languageObject[language] = language;
-    try {
-      translations[language] = readJson(
-        join(".", "locales", `${language}.json`)
-      );
-      languageObject[language] = translations[language]["language.name"];
-    } catch (error) {}
-  });
+    translations[language] = await readJson(
+      join(".", "locales", `${language}.json`)
+    );
+    translations[language] = await readJson(
+      join(".", "locales", `${language}.json`)
+    );
+    languageObject[language] = translations[language]["language.name"];
+  }
   ensureDir(join(".", "src", "data", "generated"));
   writeJson(
     join(".", "src", "data", "generated", "languages.json"),
@@ -132,7 +133,7 @@ export const generateSvelte = async () => {
   );
 
   await emptyDirectories();
-  const { translations } = await generateLanguageFile();
+  const { translations } = await generateLanguageFile(languages);
 
   // Find all components and routes and run i18n helpers on them
   const files = [
@@ -185,3 +186,4 @@ export const generateSvelte = async () => {
     await remove(join(".", "src", "routes", language, "generated"));
   }
 };
+generateSvelte();

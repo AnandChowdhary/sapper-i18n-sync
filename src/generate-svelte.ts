@@ -66,7 +66,11 @@ const emptyDirectories = async () => {
  * @param file - Path to .svelte file
  * @param translations - List of translations
  */
-export const updateFile = async (file: string, translations: KV) => {
+export const updateFile = async (
+  file: string,
+  languages: string[],
+  translations: KV
+) => {
   // File paths are like src/_components/File.svelte or src/_routes/path.svelte
   // So we normalize them to src/components/File.svelte and src/routes/path.svelte
   let normalizedFilePath = file.split("src/_")[1];
@@ -75,7 +79,7 @@ export const updateFile = async (file: string, translations: KV) => {
     : "components";
   normalizedFilePath = normalizedFilePath.split(`${prefix}/`)[1];
 
-  let fileContents = await readFile(file, "utf8");
+  const fileContents = await readFile(file, "utf8");
 
   // Loop through each language and generate corresponding .svelte file
   for await (const language of languages) {
@@ -141,7 +145,7 @@ export const generateSvelte = async () => {
     ...(await read(join(".", "src", "_routes"))),
   ];
   for await (const file of files) {
-    await updateFile(file, translations);
+    await updateFile(file, languages, translations);
   }
 
   // A special directory "_routes/root" exists that has routes that don't

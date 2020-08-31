@@ -23,3 +23,6 @@ if (argv._[0] === "generate-locales") {
 } else if (argv._[0] === "generate-svelte") {
   generateSvelte();
 }
+
+export * from "./generate-locales";
+export * from "./generate-svelte";

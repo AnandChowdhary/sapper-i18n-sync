@@ -1,15 +1,16 @@
 import {
+  ensureDir,
+  ensureFile,
+  readdir,
   readFile,
   readJson,
-  ensureDir,
-  writeJson,
   remove,
-  ensureFile,
   writeFile,
+  writeJson,
 } from "fs-extra";
-import read from "recursive-readdir";
-import { join } from "path";
 import marked from "marked";
+import { join } from "path";
+import read from "recursive-readdir";
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -119,5 +120,68 @@ export const updateFile = async (file: string, translations: KV) => {
       join(".", "src", prefix, language, normalizedFilePath),
       languageFileComponents
     );
+  }
+};
+
+export const generateSvelte = async () => {
+  console.log("Generating components and routes...");
+
+  // Find all languages from the "locales" directory
+  const languages = (await readdir(join(".", "locales"))).map(
+    (lang) => lang.split(".")[0]
+  );
+
+  await emptyDirectories();
+  const { translations } = await generateLanguageFile();
+
+  // Find all components and routes and run i18n helpers on them
+  const files = [
+    ...(await read(join(".", "src", "_components"))),
+    ...(await read(join(".", "src", "_routes"))),
+  ];
+  for await (const file of files) {
+    await updateFile(file, translations);
+  }
+
+  // A special directory "_routes/root" exists that has routes that don't
+  // require any i18n, these are copied to "routes directly"
+  const rootRoutes = await read(join(".", "src", "_routes", "root"));
+  for await (const route of rootRoutes) {
+    const routePath = route.split("src/_routes/root/")[1];
+    const fileContents = await readFile(
+      join(".", "src", "_routes", "root", routePath),
+      "utf8"
+    );
+    // Change "@/" imports to relative imports using "../../" repetition
+    let routeFileComponents = fileContents.replace(
+      new RegExp("@/", "g"),
+      `${"../".repeat(routePath.split("/").length)}`
+    );
+    await ensureFile(join(".", "src", "routes", routePath));
+    await writeFile(join(".", "src", "routes", routePath), routeFileComponents);
+  }
+
+  // A special directory "src/_generated" is used for routes that are
+  // generated from API services, we copy these to "routes/:lang" as well
+  const generatedRoutes = await read(join(".", "src", "_generated"));
+  for await (const route of generatedRoutes) {
+    const routePath = route.split("src/_generated/")[1];
+    const fileContents = await readFile(
+      join(".", "src", "_generated", routePath),
+      "utf8"
+    );
+    for await (const language of languages) {
+      await ensureFile(join(".", "src", "routes", language, routePath));
+      await writeFile(
+        join(".", "src", "routes", language, routePath),
+        fileContents
+      );
+    }
+  }
+
+  // Lastly, we remove the language root and generated routes
+  for await (const language of languages) {
+    await remove(join(".", "src", "routes", language, "root"));
+    await remove(join(".", "src", "routes", language, "generated"));
   }
 };

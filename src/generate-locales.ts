@@ -15,7 +15,7 @@ export interface GenerateLocalesParams {
  * @param params - Options
  */
 export const generateLocales = async (params: GenerateLocalesParams) => {
-  const tempDir = params.tempDir ?? "__i18n-temp";
+  const tempDir = params.tempDir || "__i18n-temp";
 
   // Use cached translations
   if (

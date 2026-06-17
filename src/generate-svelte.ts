@@ -190,4 +190,3 @@ export const generateSvelte = async () => {
     await remove(join(".", "src", "routes", language, "generated"));
   }
 };
-generateSvelte();

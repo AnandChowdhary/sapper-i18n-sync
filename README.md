@@ -34,22 +34,37 @@ To get started, install the package from npm:
 npm install sapper-i18n-sync
 ```
 
-To create a `locales` directory from a remote git repository:
+Create a script in your Sapper app, for example `scripts/sync-i18n.js`:
 
-```ts
-import { generateLocales } from "sapper-i18n-sync";
-generateLocales({
-  gitRepo: "https://github.com/koj-co/i18n",
-  path: "locales",
-})
+```js
+const { generateLocales, generateSvelte } = require("sapper-i18n-sync");
+
+async function main() {
+  await generateLocales({
+    gitRepo: "https://github.com/koj-co/i18n",
+    path: "locales",
+  });
+
+  await generateSvelte();
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
 ```
 
-Then, generate:
+Then add it to your app's `package.json`:
 
-```ts
-import { generateSvelte } from "sapper-i18n-sync";
-generateSvelte();
+```json
+{
+  "scripts": {
+    "sync:i18n": "node scripts/sync-i18n.js"
+  }
+}
 ```
+
+Run `npm run sync:i18n` before your Sapper build/export step. The script clones the remote repository's `locales` directory into your app, then generates localized Svelte components and routes from `src/_components`, `src/_routes`, and `src/_generated`.
 
 ## 📄 License
 
